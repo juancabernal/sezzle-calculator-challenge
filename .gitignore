@@ -3,15 +3,17 @@ backend/bin/
 *.exe
 *.test
 *.out
+backend/coverage.html
 
 # Variables de entorno reales (nunca se suben credenciales)
 .env
 backend/.env
+frontend/.env
 
-# Node / frontend (lo usaremos mas adelante)
+# Node / frontend
 frontend/node_modules/
 frontend/dist/
-frontend/.env
+frontend/coverage/
 
 # Editores
 .vscode/
@@ -20,6 +22,3 @@ frontend/.env
 # Sistema operativo
 .DS_Store
 Thumbs.db
-
-backend/coverage.out
-backend/coverage.html

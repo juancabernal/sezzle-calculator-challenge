@@ -1,0 +1,53 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: #f3f4f6;
+  font-family: system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+.subtitle {
+  margin-top: 0;
+  color: #374151;
+}
+
+.layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Mobile: stack the form and history vertically instead of side by side */
+@media (max-width: 640px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .page {
+    padding: 1rem 0.75rem;
+  }
+}

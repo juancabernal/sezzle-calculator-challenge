@@ -1,0 +1,41 @@
+.result,
+.placeholder,
+.error {
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.result {
+  background-color: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #065f46;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #065f46;
+  word-break: break-all;
+}
+
+.placeholder {
+  color: #6b7280;
+  border: 1px dashed #d1d5db;
+}
+
+.error {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b00020;
+  font-weight: 500;
+}
