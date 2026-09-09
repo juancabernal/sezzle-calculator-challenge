@@ -1,0 +1,22 @@
+﻿# Go
+backend/bin/
+*.exe
+*.test
+*.out
+
+# Variables de entorno reales (nunca se suben credenciales)
+.env
+backend/.env
+
+# Node / frontend (lo usaremos mas adelante)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Editores
+.vscode/
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
