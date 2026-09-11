@@ -2,52 +2,112 @@
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
-  background-color: #f3f4f6;
-  font-family: system-ui, -apple-system, sans-serif;
+  padding: 4rem 1.5rem;
   box-sizing: border-box;
 }
 
 .container {
   width: 100%;
-  max-width: 800px;
+  max-width: 960px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
 }
 
 .title {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #111827;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  margin-top: 0;
-  color: #374151;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
 }
 
-.layout {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+/* Bento grid: an asymmetric layout, not three identical cards.
+   The main panel takes two columns; history and the stack badge
+   share the third column, stacked. */
+.bento {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1.25rem;
 }
 
 .panel {
-  flex: 1;
+  padding: 1.75rem;
+}
+
+.panelMain {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panelHistory {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  min-height: 0;
 }
 
-/* Mobile: stack the form and history vertically instead of side by side */
-@media (max-width: 640px) {
-  .layout {
-    flex-direction: column;
+.panelStack {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.panelTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.stackLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.stackValue {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--accent-strong);
+}
+
+.stackSub {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* Mobile: the bento collapses to a single column, main panel first. */
+@media (max-width: 768px) {
+  .page {
+    padding: 2rem 1rem;
   }
 
-  .page {
-    padding: 1rem 0.75rem;
+  .bento {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .panelMain,
+  .panelHistory,
+  .panelStack {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
