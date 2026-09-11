@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: calculator
+      POSTGRES_PASSWORD: calculator
+      POSTGRES_DB: calculator
+    ports:
+      - "5432:5432"
+    volumes:
+      # Named volume: Postgres's actual data persists across
+      # `docker compose down` / `up` cycles, instead of starting
+      # empty every time.
+      - postgres_data:/var/lib/postgresql/data
+      # Postgres's official image automatically runs any .sql file
+      # found here, in alphabetical order, ONLY the very first time
+      # the container starts with an empty data volume. This is how
+      # our migration gets applied without any extra tooling.
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U calculator"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      DATABASE_URL: "postgres://calculator:calculator@postgres:5432/calculator?sslmode=disable"
+    depends_on:
+      postgres:
+        # Waits for the healthcheck above to pass, not just for the
+        # container to "start" — Postgres takes a moment after
+        # starting before it's actually ready to accept connections.
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Baked into the compiled JS at build time (see Dockerfile).
+        # Uses localhost:8080 because this URL is embedded in
+        # JavaScript that runs in the USER's browser, not inside
+        # Docker's internal network — the browser reaches the backend
+        # through the port we exposed on the host machine.
+        VITE_API_URL: "http://localhost:8080"
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
