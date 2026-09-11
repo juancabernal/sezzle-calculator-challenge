@@ -1,41 +1,50 @@
 .result,
 .placeholder,
 .error {
-  padding: 1rem;
-  border-radius: 6px;
+  border-radius: 14px;
+  padding: 1.75rem 1.5rem;
   text-align: center;
-}
-
-.result {
-  background-color: #ecfdf5;
-  border: 1px solid #6ee7b7;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* The "screen": an inset glass surface, darker than the panel it
+   sits on, the same way a real calculator's display recesses
+   slightly into its body. */
+.result,
+.placeholder,
+.error {
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--glass-border);
 }
 
 .label {
-  font-size: 0.85rem;
-  color: #065f46;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
 }
 
 .value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #065f46;
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 500;
+  color: var(--accent-strong);
   word-break: break-all;
+  text-shadow: 0 0 24px rgba(139, 147, 255, 0.35);
 }
 
 .placeholder {
-  color: #6b7280;
-  border: 1px dashed #d1d5db;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
 .error {
-  background-color: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #b00020;
+  color: var(--danger);
   font-weight: 500;
+  font-size: 0.95rem;
+  border-color: rgba(255, 122, 138, 0.3);
 }

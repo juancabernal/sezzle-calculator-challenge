@@ -1,0 +1,89 @@
+:root {
+  /* Base */
+  --bg-base: #0b0c16;
+  --text-primary: #f5f6fa;
+  --text-secondary: rgba(245, 246, 250, 0.62);
+
+  /* Glass surfaces */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.35);
+
+  /* Accent */
+  --accent: #8b93ff;
+  --accent-strong: #aab0ff;
+  --accent-text: #14142b;
+
+  /* Semantic */
+  --danger: #ff7a8a;
+  --danger-bg: rgba(255, 122, 138, 0.12);
+  --success-text: #9dffd8;
+
+  /* Type */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  min-height: 100vh;
+  /* This is what gives the glass panels something to refract: two
+     large, heavily blurred color blobs sitting behind everything,
+     fixed so they don't scroll with the page. */
+  background-image: radial-gradient(
+      circle at 15% 20%,
+      rgba(139, 147, 255, 0.35),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 75%,
+      rgba(61, 219, 217, 0.28),
+      transparent 45%
+    );
+  background-attachment: fixed;
+}
+
+/* Shared "glass panel" look, reused by every card in the app via
+   composition (see App.module.css / CalculatorForm.module.css etc.
+   using `composes: glass from global`). */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* The specular highlight: a thin bright line along the top edge,
+   mimicking how real glass catches light from above. */
+.glass::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--glass-highlight),
+    transparent
+  );
+}
