@@ -1,3 +1,10 @@
+// Package main is the calculator backend server.
+//
+//	@title			Calculator API
+//	@version		1.0
+//	@description	REST API for a full-stack calculator challenge (Sezzle SWE Intern), built with Go and hexagonal architecture.
+//	@host			localhost:8080
+//	@BasePath		/
 package main
 
 import (

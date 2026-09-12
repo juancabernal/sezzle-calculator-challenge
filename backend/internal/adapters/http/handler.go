@@ -22,6 +22,16 @@ func NewHandler(service *application.CalculatorService) *Handler {
 }
 
 // HandleCalculate handles POST /calculate.
+//
+//	@Summary		Perform an arithmetic calculation
+//	@Description	Executes one operation (add, subtract, multiply, divide, power, sqrt, percentage) and persists the result if successful.
+//	@Tags			calculator
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		CalculateRequest	true	"Operation and operands"
+//	@Success		200		{object}	CalculateResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Router			/calculate [post]
 func (h *Handler) HandleCalculate(w http.ResponseWriter, r *http.Request) {
 	var req CalculateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -44,6 +54,14 @@ func (h *Handler) HandleCalculate(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleHistory handles GET /history.
+//
+//	@Summary		List recent calculations
+//	@Description	Returns the most recent successful calculations (up to 20), newest first. Failed calculations are never persisted.
+//	@Tags			calculator
+//	@Produce		json
+//	@Success		200	{object}	HistoryResponse
+//	@Failure		500	{object}	ErrorResponse
+//	@Router			/history [get]
 func (h *Handler) HandleHistory(w http.ResponseWriter, r *http.Request) {
 	history, err := h.service.History(r.Context(), 20)
 	if err != nil {

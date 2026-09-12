@@ -135,6 +135,7 @@ docker compose up --build
 Once running:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8080
+- Interactive API docs (Swagger UI): http://localhost:8080/swagger/index.html
 - PostgreSQL: `localhost:5432` (user/password/db: `calculator`)
 
 Stop everything with `Ctrl+C`, or `docker compose down` from another
@@ -164,6 +165,12 @@ npm run dev
 ```
 
 ## API reference
+
+Interactive documentation (Swagger UI, generated from code comments
+via [`swaggo/swag`](https://github.com/swaggo/swag)) is available at
+`http://localhost:8080/swagger/index.html` once the backend is
+running — you can try every endpoint directly from the browser. The
+raw OpenAPI spec is at `backend/docs/swagger.json`.
 
 All responses are JSON. Successful calculations return `200 OK`;
 invalid input or business-rule violations (e.g. division by zero)
