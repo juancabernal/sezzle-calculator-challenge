@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (Go)
+    runs-on: ubuntu-latest
+
+    # A real Postgres instance, available to every step in this job at
+    # localhost:5432 — this is what lets the Postgres adapter's
+    # integration test (repository_integration_test.go) run in CI
+    # instead of silently skipping the way it does on a laptop with no
+    # database running.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: calculator
+          POSTGRES_PASSWORD: calculator
+          POSTGRES_DB: calculator
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U calculator"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Verify gofmt formatting
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test (unit + Postgres integration) with coverage
+        env:
+          TEST_DATABASE_URL: postgres://calculator:calculator@localhost:5432/calculator?sslmode=disable
+        run: go test ./... -v -coverprofile=coverage.out
+
+      - name: Coverage summary
+        run: go tool cover -func=coverage.out | tail -1
+
+  frontend:
+    name: Frontend (React/TypeScript)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check and build
+        run: npm run build
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+  docker:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    # Only worth building images once we know the code inside them
+    # actually compiles and passes its own tests.
+    needs: [backend, frontend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t calculator-backend:ci ./backend
+
+      - name: Build frontend image
+        run: docker build -t calculator-frontend:ci ./frontend

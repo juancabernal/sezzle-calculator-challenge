@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"math"
 
 	"github.com/google/uuid"
 	"github.com/juancabernal/sezzle-calculator-challenge/backend/internal/domain"
@@ -47,6 +48,16 @@ func (s *CalculatorService) Calculate(ctx context.Context, opType domain.Operati
 	result, err := operation.Execute(operandA, b)
 	if err != nil {
 		return domain.Calculation{}, err
+	}
+
+	// A handful of otherwise-valid inputs produce a result that isn't
+	// a finite real number — e.g. power(-8, 0.5) is NaN, and power(10,
+	// 1000) overflows to +Inf. encoding/json cannot marshal either, so
+	// without this check the API would answer 200 OK with an empty
+	// body instead of a meaningful error. Checked once here, for every
+	// operation, rather than duplicated inside each strategy.
+	if math.IsNaN(result) || math.IsInf(result, 0) {
+		return domain.Calculation{}, domain.ErrNonFiniteResult
 	}
 
 	calc := domain.NewCalculation(uuid.NewString(), opType, operandA, operandB, result)

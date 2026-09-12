@@ -25,6 +25,13 @@ WORKDIR /app
 COPY --from=builder /server .
 COPY migrations ./migrations
 
+# Run as an unprivileged user instead of the image's default root.
+# The binary never needs root (no privileged ports, no host mounts),
+# so this only reduces what an attacker gains from a hypothetical
+# remote code execution bug — standard container hardening.
+RUN addgroup -S app && adduser -S -G app app
+USER app
+
 EXPOSE 8080
 
 CMD ["./server"]
