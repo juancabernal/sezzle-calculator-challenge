@@ -1,6 +1,11 @@
 package http
 
-import "net/http"
+import (
+	"net/http"
+
+	_ "github.com/juancabernal/sezzle-calculator-challenge/backend/docs" // swagger docs, registered via side-effect import
+	httpSwagger "github.com/swaggo/http-swagger"
+)
 
 // NewRouter wires up every route to its handler. Go 1.22+ lets the
 // standard http.ServeMux match on method + path directly ("POST /x"),
@@ -10,6 +15,7 @@ func NewRouter(h *Handler) http.Handler {
 
 	mux.HandleFunc("POST /calculate", h.HandleCalculate)
 	mux.HandleFunc("GET /history", h.HandleHistory)
+	mux.Handle("GET /swagger/", httpSwagger.WrapHandler)
 
 	// Wrap the whole mux with CORS middleware so every route gets it,
 	// instead of repeating the header logic in each handler.

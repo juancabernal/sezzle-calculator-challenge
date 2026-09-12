@@ -1,0 +1,137 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API for a full-stack calculator challenge (Sezzle SWE Intern), built with Go and hexagonal architecture.",
+        "title": "Calculator API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/calculate": {
+            "post": {
+                "description": "Executes one operation (add, subtract, multiply, divide, power, sqrt, percentage) and persists the result if successful.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calculator"
+                ],
+                "summary": "Perform an arithmetic calculation",
+                "parameters": [
+                    {
+                        "description": "Operation and operands",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.CalculateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.CalculateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/history": {
+            "get": {
+                "description": "Returns the most recent successful calculations (up to 20), newest first. Failed calculations are never persisted.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "calculator"
+                ],
+                "summary": "List recent calculations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.HistoryResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "http.CalculateRequest": {
+            "type": "object",
+            "properties": {
+                "operand_a": {
+                    "type": "number"
+                },
+                "operand_b": {
+                    "type": "number"
+                },
+                "operation": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.CalculateResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "operand_a": {
+                    "type": "number"
+                },
+                "operand_b": {
+                    "type": "number"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "number"
+                }
+            }
+        },
+        "http.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.HistoryResponse": {
+            "type": "object",
+            "properties": {
+                "calculations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/http.CalculateResponse"
+                    }
+                }
+            }
+        }
+    }
+}
