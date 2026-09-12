@@ -30,6 +30,15 @@ var (
 	ErrNegativeSqrt        = errors.New("cannot compute square root of a negative number")
 	ErrZeroToNegativePower = errors.New("zero cannot be raised to a negative power")
 	ErrUnknownOperation    = errors.New("unknown operation type")
+
+	// ErrNonFiniteResult is returned when an otherwise-valid operation
+	// produces a result that cannot be represented as JSON — NaN (e.g.
+	// a negative base raised to a fractional power, like (-8)^0.5) or
+	// +/-Inf (e.g. an exponent large enough to overflow float64). Both
+	// are caught centrally in CalculatorService.Calculate rather than
+	// in every individual strategy, since any operation involving very
+	// large or otherwise unusual operands can in principle overflow.
+	ErrNonFiniteResult = errors.New("this operation does not produce a finite real number for the given operands")
 )
 
 // Operation is the Strategy interface: every arithmetic operation

@@ -73,6 +73,38 @@ func TestCalculatorService_Calculate_DomainError(t *testing.T) {
 	}
 }
 
+func TestCalculatorService_Calculate_NonFiniteResult(t *testing.T) {
+	repo := memory.NewRepository()
+	service := application.NewCalculatorService(repo)
+	ctx := context.Background()
+
+	tests := []struct {
+		name string
+		a, b float64
+	}{
+		// A negative base raised to a fractional exponent is not a
+		// real number (e.g. sqrt(-8)) -> math.Pow returns NaN.
+		{name: "NaN from negative base with fractional exponent", a: -8, b: 0.5},
+		// An exponent large enough overflows float64's range -> +Inf.
+		{name: "+Inf from overflow", a: 10, b: 1000},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			b := tc.b
+			_, err := service.Calculate(ctx, domain.Power, tc.a, &b)
+			if !errors.Is(err, domain.ErrNonFiniteResult) {
+				t.Errorf("error = %v, want %v", err, domain.ErrNonFiniteResult)
+			}
+		})
+	}
+
+	history, _ := service.History(ctx, 10)
+	if len(history) != 0 {
+		t.Errorf("History length = %d, want 0 (non-finite results should not persist)", len(history))
+	}
+}
+
 func TestCalculatorService_Calculate_UnknownOperation(t *testing.T) {
 	repo := memory.NewRepository()
 	service := application.NewCalculatorService(repo)

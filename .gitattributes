@@ -1,0 +1,14 @@
+# Normalize line endings to LF for every text file, regardless of the
+# platform a contributor commits from. Without this, Windows checkouts
+# can end up with CRLF baked into the committed blobs themselves (not
+# just the working tree) — which breaks `gofmt` (it always emits LF and
+# then reports every CRLF file as "needs formatting") and turns every
+# future diff on those files into a noisy, all-lines-changed diff.
+* text=auto eol=lf
+
+# Never touch binaries.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.svg binary

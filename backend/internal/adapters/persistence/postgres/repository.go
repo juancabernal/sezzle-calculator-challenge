@@ -38,10 +38,14 @@ func (r *Repository) Save(ctx context.Context, calc domain.Calculation) error {
 }
 
 func (r *Repository) FindHistory(ctx context.Context, limit int) ([]domain.Calculation, error) {
+	// Ordered by seq, not created_at: seq is assigned atomically and
+	// monotonically by Postgres on insert, so it can never tie between
+	// two rows the way two TIMESTAMPTZ values from concurrent requests
+	// occasionally can (see the migration for why that matters).
 	const query = `
 		SELECT id, operation, operand_a, operand_b, result, created_at
 		FROM calculations
-		ORDER BY created_at DESC
+		ORDER BY seq DESC
 		LIMIT $1
 	`
 	rows, err := r.db.QueryContext(ctx, query, limit)

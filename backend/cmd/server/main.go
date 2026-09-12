@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"time"
 
 	httpadapter "github.com/juancabernal/sezzle-calculator-challenge/backend/internal/adapters/http"
 	"github.com/juancabernal/sezzle-calculator-challenge/backend/internal/adapters/persistence/memory"
@@ -33,8 +34,23 @@ func main() {
 	handler := httpadapter.NewHandler(service)
 	router := httpadapter.NewRouter(handler)
 
+	// A bare http.ListenAndServe uses http.DefaultServeMux's implicit
+	// server, which has no timeouts at all — a client that opens a
+	// connection and trickles bytes (or never sends any) ties up a
+	// goroutine indefinitely (a "Slowloris" style resource exhaustion).
+	// Explicit timeouts are a standard, low-cost hardening step for any
+	// service exposed to the network.
+	server := &http.Server{
+		Addr:              cfg.Addr(),
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+
 	log.Printf("calculator backend listening on %s", cfg.Addr())
-	if err := http.ListenAndServe(cfg.Addr(), router); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }

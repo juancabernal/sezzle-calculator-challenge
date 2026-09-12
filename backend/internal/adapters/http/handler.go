@@ -3,11 +3,16 @@ package http
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/juancabernal/sezzle-calculator-challenge/backend/internal/application"
 	"github.com/juancabernal/sezzle-calculator-challenge/backend/internal/domain"
 )
+
+// maxRequestBodyBytes caps how much of a request body we're willing
+// to read for POST /calculate. See HandleCalculate for why.
+const maxRequestBodyBytes = 4 << 10 // 4 KiB
 
 // Handler holds the dependencies the HTTP layer needs — in this case,
 // just the use case. It has no idea whether CalculatorService is
@@ -33,6 +38,12 @@ func NewHandler(service *application.CalculatorService) *Handler {
 //	@Failure		400		{object}	ErrorResponse
 //	@Router			/calculate [post]
 func (h *Handler) HandleCalculate(w http.ResponseWriter, r *http.Request) {
+	// The request is just two floats and an operation name — a few
+	// KB is more than generous. Capping it prevents a client from
+	// sending an arbitrarily large body just to burn server memory
+	// and CPU decoding it.
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodyBytes)
+
 	var req CalculateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON body")
@@ -82,7 +93,13 @@ func (h *Handler) HandleHistory(w http.ResponseWriter, r *http.Request) {
 func writeJSON(w http.ResponseWriter, status int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(payload)
+	// The status and headers are already flushed by the time Encode
+	// could fail, so there's nothing left to tell the client — but we
+	// still log it server-side instead of swallowing it silently, so
+	// an unexpected encoding failure doesn't disappear without a trace.
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		log.Printf("failed to encode JSON response: %v", err)
+	}
 }
 
 func writeError(w http.ResponseWriter, status int, message string) {
@@ -98,7 +115,8 @@ func writeDomainError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrDivisionByZero),
 		errors.Is(err, domain.ErrNegativeSqrt),
 		errors.Is(err, domain.ErrZeroToNegativePower),
-		errors.Is(err, domain.ErrUnknownOperation):
+		errors.Is(err, domain.ErrUnknownOperation),
+		errors.Is(err, domain.ErrNonFiniteResult):
 		// These are the client's fault (bad input) -> 400 Bad Request.
 		writeError(w, http.StatusBadRequest, err.Error())
 	default:

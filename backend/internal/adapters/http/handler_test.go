@@ -62,6 +62,31 @@ func TestHandleCalculate_DivisionByZero_ReturnsBadRequest(t *testing.T) {
 	}
 }
 
+func TestHandleCalculate_NonFiniteResult_ReturnsBadRequest(t *testing.T) {
+	router := newTestRouter()
+
+	// (-8)^0.5 is not a real number -> math.Pow returns NaN, which
+	// encoding/json cannot marshal. This must surface as a clean 400
+	// with a JSON error body, never as a 200 with an empty/broken body.
+	body := strings.NewReader(`{"operation":"power","operand_a":-8,"operand_b":0.5}`)
+	req := httptest.NewRequest(http.MethodPost, "/calculate", body)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d. Body: %s", rec.Code, http.StatusBadRequest, rec.Body.String())
+	}
+
+	var resp httpadapter.ErrorResponse
+	if err := json.NewDecoder(rec.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode error response: %v", err)
+	}
+	if resp.Error == "" {
+		t.Error("expected a non-empty error message")
+	}
+}
+
 func TestHandleCalculate_InvalidJSON_ReturnsBadRequest(t *testing.T) {
 	router := newTestRouter()
 

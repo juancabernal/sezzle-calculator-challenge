@@ -140,6 +140,32 @@ fact.
 
 > Yes, let's add it.
 
+## Phase 10 — Final review and hardening pass
+
+> Could you review what I have in the project and check if it meets
+> what was requested? This is what it needed to satisfy [full
+> Greenhouse take-home brief pasted]. Don't just focus on meeting
+> what's asked — give more, much more, so we leave something very
+> solid.
+
+*(Context: by this point the project already met every requirement in
+the brief — both backends, tests, Docker, docs. This prompt asked for
+an honest audit against the original brief, followed by a genuine
+hardening pass, not cosmetic polish. The review actually ran the test
+suites, linters, and a real Postgres container rather than reading the
+code and assuming it worked, which is how it caught a real bug: a
+`power` operation with a negative base and a fractional exponent (or
+an exponent large enough to overflow) produced `NaN`/`+Inf`, which
+`encoding/json` cannot serialize — the API silently returned `200 OK`
+with an empty body instead of an error. Writing an integration test
+for the previously-untested Postgres adapter surfaced a second, subtler
+issue: `ORDER BY created_at DESC` alone is not a reliable tiebreaker
+when two calculations land in the same database timestamp resolution,
+which is realistic under concurrent load. Both were fixed, covered by
+new tests, and verified end-to-end — including running the built
+Docker image directly — rather than assumed fixed from reading the
+diff.)*
+
 ---
 
 **Note on methodology:** every architectural decision in this

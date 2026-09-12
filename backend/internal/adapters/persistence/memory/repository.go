@@ -7,7 +7,6 @@ package memory
 
 import (
 	"context"
-	"sort"
 	"sync"
 
 	"github.com/juancabernal/sezzle-calculator-challenge/backend/internal/application"
@@ -55,17 +54,20 @@ func (r *Repository) FindHistory(ctx context.Context, limit int) ([]domain.Calcu
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// Copy before sorting so we never mutate r.items while holding
-	// a reference that escapes this method.
-	sorted := make([]domain.Calculation, len(r.items))
-	copy(sorted, r.items)
-
-	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i].CreatedAt.After(sorted[j].CreatedAt)
-	})
-
-	if limit > 0 && limit < len(sorted) {
-		sorted = sorted[:limit]
+	// Save() only ever appends, so r.items is already in chronological
+	// (oldest-first) order by construction — reversing it is enough to
+	// get "most recent first", and unlike sorting by CreatedAt it can
+	// never produce a wrong order from two calculations landing in the
+	// same clock tick (time.Now() has limited resolution on some
+	// platforms, and sort.Slice isn't even guaranteed stable on ties).
+	n := len(r.items)
+	reversed := make([]domain.Calculation, n)
+	for i, calc := range r.items {
+		reversed[n-1-i] = calc
 	}
-	return sorted, nil
+
+	if limit > 0 && limit < len(reversed) {
+		reversed = reversed[:limit]
+	}
+	return reversed, nil
 }
