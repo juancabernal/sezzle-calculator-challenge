@@ -38,7 +38,7 @@ dependency-inversion idea applied on both ends of the stack.
 
 **Deployment diagram — simplified:**
 
-![Deployment diagram — simplified](docs/CalculatorArchitecture.svg)
+![Deployment diagram — simplified](docs/CalculatorArchitecture.png)
 
 A high-level, C4-style container view: the user's browser loads the
 frontend once, then talks to the backend directly for every
@@ -46,7 +46,7 @@ calculation, and the backend talks to PostgreSQL.
 
 **Deployment diagram — detailed:**
 
-![Deployment diagram — detailed](docs/ReferenceArchetype.svg)
+![Deployment diagram — detailed](docs/ReferenceArchetype.png)
 
 Same system, one level more detailed: exact hostnames and ports for
 each container, plus an explicit note on why the browser calls the
@@ -57,7 +57,7 @@ user's browser, which is also why CORS is enabled on the backend).
 
 **Package diagram:**
 
-![Package diagram](docs/Package.svg)
+![Package diagram](docs/Package.png)
 
 Traces the real `import` relationships between backend packages,
 confirming the dependency rule holds in practice: arrows only ever
