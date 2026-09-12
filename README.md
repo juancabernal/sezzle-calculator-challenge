@@ -65,7 +65,7 @@ point inward, toward `domain`, never outward from it.
 
 **Hexagonal architecture — conceptual view:**
 
-![Hexagonal architecture — conceptual view](docs/Hexagonal.svg)
+![Hexagonal architecture — conceptual view](docs/Hexagonal.png)
 
 A simplified version of the same idea, independent of the specific
 package names: adapters (inbound and outbound) depend on the
